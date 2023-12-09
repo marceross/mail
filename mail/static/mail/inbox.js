@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
 
+  const emailsView = document.querySelector('#emails-view');
+  emailsView.parentNode.insertBefore(Object.assign(document.createElement('div'), { id: 'details-view' }), emailsView.nextSibling);
+
   // By default, load the inbox
   load_mailbox('inbox');
 });
@@ -14,6 +17,7 @@ function compose_email() {
 
     // Show compose view and hide other views
     document.querySelector('#emails-view').style.display = 'none';
+    document.querySelector('#details-view').style.display = 'none';
     document.querySelector('#compose-view').style.display = 'block';
 
     // Clear out composition fields
@@ -51,6 +55,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#details-view').style.display = 'none';
 
   const emailsView = document.querySelector('#emails-view');
   emailsView.style.display = 'block';
@@ -72,7 +77,46 @@ function load_mailbox(mailbox) {
               <p>Timestamp: ${email.timestamp}</p>
           </div>
       `;
+            // toogles to the individual email
+            emailDiv.addEventListener('click', () => {
+                view_email(email.id);
+            });
               emailsView.append(emailDiv);
           });
+        })
+        .catch((error) => {
+            console.error('Error fetching emails:', error);
+        });
+  }
+  
+  function view_email(id) {
+    document.querySelector('#emails-view').style.display = 'none';
+    document.querySelector('#details-view').style.display = 'block';
+    const detailsView = document.querySelector('#details-view');
+    fetch(`emails/${id}`)
+        .then((response) => response.json())
+        .then((emailData) => {
+            detailsView.innerHTML = `
+      <p>Sender: ${emailData.sender}</p>
+      <p>Subject: ${emailData.subject}</p>
+      <p>Timestamp: ${emailData.timestamp}</p>
+      <p>Body: ${emailData.body}</p>
+      <p>Recipients: ${emailData.recipients.join(", ")}</p>
+      <button class='btn btn-primary reply-btn'>Reply</button>
+    `;
+            document
+                .querySelector('.reply-btn')
+                .addEventListener('click', (event) => {
+                    event.preventDefault();
+                    compose_email(
+                        emailData.sender,
+                        emailData.timestamp,
+                        emailData.subject,
+                        emailData.body
+                    );
+                });
+        })
+        .catch((error) => {
+            console.error('Error fetching email data:', error);
       });
 }
