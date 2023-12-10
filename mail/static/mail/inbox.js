@@ -58,8 +58,8 @@ else {
                   alert(result.error);
               }
               else {
-                  window.alert('Email Sent Successfully!');
-                  load_mailbox('sent');
+                  //window.alert('Email Sent Successfully!');
+                  load_mailbox('inbox');
                   console.log(result)
               }
           });
@@ -86,8 +86,8 @@ function load_mailbox(mailbox) {
           emails.forEach((email) => {
               const emailDiv = document.createElement('div');
               emailDiv.innerHTML = `
-              <div class='${email.read ? "bg-secondary" : "bg-light"}'>
-              <p class='bg-dark text-light'>Email</p>
+              <div class='${email.read ? "bg-secondary" : "bg-light"} border border-info'>
+              <p class='bg-dark text-light'>Email: ${email.id}</p>
               <p>Sender: ${email.sender}</p>
               <p>Subject: ${email.subject}</p>
               <p>Timestamp: ${email.timestamp}</p>
@@ -115,10 +115,10 @@ function load_mailbox(mailbox) {
         .then((emailData) => {
             detailsView.innerHTML = `
       <p>Sender: ${emailData.sender}</p>
+      <p>Recipients: ${emailData.recipients.join(", ")}</p>
       <p>Subject: ${emailData.subject}</p>
       <p>Timestamp: ${emailData.timestamp}</p>
       <p>Body: ${emailData.body}</p>
-      <p>Recipients: ${emailData.recipients.join(", ")}</p>
       <button class='btn btn-primary reply-btn'>Reply</button>
       <button class='btn btn-danger archive-btn'>${
         emailData.archived === true ? "Unarchive" : "Archive"
@@ -143,6 +143,7 @@ function load_mailbox(mailbox) {
                     // Toggle the archived status
                     emailData.archived = !emailData.archived;
                     archive_mail(emailData.archived , emailData.id);
+                    load_mailbox('inbox');
                 });
 
             update_read(emailData.id);
