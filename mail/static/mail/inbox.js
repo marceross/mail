@@ -120,6 +120,9 @@ function load_mailbox(mailbox) {
       <p>Body: ${emailData.body}</p>
       <p>Recipients: ${emailData.recipients.join(", ")}</p>
       <button class='btn btn-primary reply-btn'>Reply</button>
+      <button class='btn btn-danger archive-btn'>${
+        emailData.archived === true ? "Unarchive" : "Archive"
+      }</button>
     `;
             document
                 .querySelector('.reply-btn')
@@ -132,6 +135,16 @@ function load_mailbox(mailbox) {
                         emailData.body
                     );
                 });
+
+            document
+                .querySelector(".archive-btn")
+                .addEventListener("click", (event) => {
+                    event.preventDefault();
+                    // Toggle the archived status
+                    emailData.archived = !emailData.archived;
+                    archive_mail(emailData.archived , emailData.id);
+                });
+
             update_read(emailData.id);
         })
         .catch((error) => {
@@ -146,4 +159,14 @@ function update_read(id){
             read: true,
         }),
     })
+}
+
+function archive_mail(status , id){
+    // Fetch request to update the "archived" attribute
+    fetch(`/emails/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+          archived: status,
+      }),
+  })
 }
