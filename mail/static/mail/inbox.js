@@ -86,11 +86,12 @@ function load_mailbox(mailbox) {
           emails.forEach((email) => {
               const emailDiv = document.createElement('div');
               emailDiv.innerHTML = `
-          <div class=''>
+              <div class='${email.read ? "bg-secondary" : "bg-light"}'>
               <p class='bg-dark text-light'>Email</p>
               <p>Sender: ${email.sender}</p>
               <p>Subject: ${email.subject}</p>
               <p>Timestamp: ${email.timestamp}</p>
+              <!--<p>Read: ${email.read}</p>-->
           </div>
       `;
             // toogles to the individual email
@@ -131,8 +132,18 @@ function load_mailbox(mailbox) {
                         emailData.body
                     );
                 });
+            update_read(emailData.id);
         })
         .catch((error) => {
             console.error('Error fetching email data:', error);
       });
+}
+
+function update_read(id){
+    fetch(`emails/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+            read: true,
+        }),
+    })
 }
