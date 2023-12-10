@@ -13,17 +13,34 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
-function compose_email() {
+function compose_email(
+    defaultRecipients = '',
+    replyTimestamp = '',
+    replySubject = '',
+    replyBody = ''
+) {
 
     // Show compose view and hide other views
+    document.querySelector('#compose-view').style.display = 'block';
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#details-view').style.display = 'none';
-    document.querySelector('#compose-view').style.display = 'block';
 
-    // Clear out composition fields
-    document.querySelector('#compose-recipients').value = '';
-    document.querySelector('#compose-subject').value = '';
-    document.querySelector('#compose-body').value = '';   
+  // reply button is clicked values appear
+  if (replyTimestamp) {
+    document.querySelector('#compose-subject').value = `Re: ${replySubject}`;
+    document.querySelector(
+        '#compose-body'
+    ).value = `\n\n\n\n\n\n\n\n\n\nOn ${replyTimestamp}, ${defaultRecipients} wrote:\n ${replyBody}`;
+    document.querySelector('#compose-recipients').value = defaultRecipients;
+}
+
+
+// Clear out composition fields if compose button is clicked
+else {
+      document.querySelector('#compose-recipients').value = '';
+      document.querySelector('#compose-subject').value = '';
+      document.querySelector('#compose-body').value = '';   
+  } 
 
   document.querySelector('#compose-form').onsubmit = function() {
       fetch('/emails', {
@@ -53,7 +70,6 @@ function compose_email() {
 function load_mailbox(mailbox) {
 
   // Show the mailbox and hide other views
-  document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#details-view').style.display = 'none';
 
